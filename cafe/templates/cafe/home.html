@@ -1,0 +1,105 @@
+{% extends 'cafe/index.html' %}
+{% block content %}
+<section class="hero">
+  <div class="container" style="display:grid; grid-template-columns:1.15fr 0.85fr; gap:40px; align-items:center;">
+    <div>
+      <div class="eyebrow">Обжарка собственной коптильни</div>
+      <h1>Кофе, который<br>пахнет <em>домом</em></h1>
+      <p class="lede">Мы обжариваем зёрна маленькими партиями каждое утро и подаём завтраки, боулы и десерты — на месте, навынос или с доставкой курьером до двери.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="{% url 'menu' %}">Смотреть меню</a>
+        <a class="btn btn-ghost" href="{% url 'booking' %}">Забронировать столик</a>
+      </div>
+      <div style="display:flex; gap:36px; margin-top:44px; padding-top:24px; border-top:1px solid var(--line); flex-wrap:wrap;">
+        <div><b style="display:block; font-family:var(--font-display); font-size:24px; color:var(--gold);">05:30</b><span style="font-size:12px; color:var(--cream-dim); font-family:var(--font-mono);">ОБЖАРКА КАЖДОЕ УТРО</span></div>
+        <div><b style="display:block; font-family:var(--font-display); font-size:24px; color:var(--gold);">18</b><span style="font-size:12px; color:var(--cream-dim); font-family:var(--font-mono);">СТОЛИКОВ В ЗАЛЕ</span></div>
+        <div><b style="display:block; font-family:var(--font-display); font-size:24px; color:var(--gold);">25–40′</b><span style="font-size:12px; color:var(--cream-dim); font-family:var(--font-mono);">ДОСТАВКА КУРЬЕРОМ</span></div>
+      </div>
+    </div>
+    <div class="coffee-cup-wrap">
+      <div class="steam s1"></div><div class="steam s2"></div><div class="steam s3"></div>
+      <div class="coffee-cup"></div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="container">
+    <div class="about-grid reveal">
+      <div>
+        <div class="eyebrow">О нас</div>
+        <h2 style="font-size:clamp(26px,4vw,36px); margin-bottom:16px;">Кофейня, которая началась с одной обжарочной машины</h2>
+        <p style="color:var(--cream-dim); font-size:15.5px; line-height:1.7;">
+          Candle Cafe открылась как маленькая точка на пять столиков, где хозяева сами
+          обжаривали зёрна по утрам и разливали кофе гостям в лицо — буквально знали
+          каждого по имени. Сегодня зал вырос, но привычки остались прежними: обжарка
+          собственной коптильни каждое утро, свежая выпечка и честные ингредиенты
+          без компромиссов.
+        </p>
+        <p style="color:var(--cream-dim); font-size:15.5px; line-height:1.7; margin-top:14px;">
+          Мы верим, что хорошее кафе — это не только вкусный кофе, но и место, куда
+          хочется вернуться: с бронированием столика, доставкой курьером и командой,
+          которая всегда на связи в чате поддержки.
+        </p>
+      </div>
+      <div class="about-stats">
+        <div class="about-stat"><b>2018</b><span>ГОД ОСНОВАНИЯ</span></div>
+        <div class="about-stat"><b>12</b><span>ЧЕЛОВЕК В КОМАНДЕ</span></div>
+        <div class="about-stat"><b>40 000+</b><span>ЧАШЕК В ГОД</span></div>
+        <div class="about-stat"><b>4.8★</b><span>СРЕДНЯЯ ОЦЕНКА</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="reviews">
+  <div class="container">
+    <div class="sec-head">
+      <div>
+        <h2>Отзывы покупателей ({{ review_count }})</h2>
+        <p>Настоящие впечатления гостей — новые отзывы добавляются сюда автоматически.</p>
+      </div>
+    </div>
+
+    {% if reviews %}
+      <div class="marquee-wrap">
+        <div class="marquee-track">
+          {% for r in reviews %}
+            <div class="review-card">
+              <div class="review-stars">{{ r.stars }}</div>
+              <div class="review-text">{{ r.text }}</div>
+              <div class="review-author">{{ r.user.first_name|default:r.user.username }}</div>
+              {% if r.admin_reply %}
+                <div class="review-reply"><b>Ответ Candle Cafe:</b> {{ r.admin_reply }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+          {% for r in reviews %}
+            <div class="review-card" aria-hidden="true">
+              <div class="review-stars">{{ r.stars }}</div>
+              <div class="review-text">{{ r.text }}</div>
+              <div class="review-author">{{ r.user.first_name|default:r.user.username }}</div>
+              {% if r.admin_reply %}
+                <div class="review-reply"><b>Ответ Candle Cafe:</b> {{ r.admin_reply }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      <div class="empty-note">Отзывов пока нет — станьте первым!</div>
+    {% endif %}
+
+    {% if user.is_authenticated and not user.is_staff %}
+      <form method="post" action="{% url 'add_review' %}" class="panel" style="margin-top:26px; max-width:480px;">
+        {% csrf_token %}
+        <div class="field"><label>Оценка</label>{{ review_form.rating }}</div>
+        <div class="field"><label>Ваш отзыв</label>{{ review_form.text }}</div>
+        <button type="submit" class="btn btn-primary">Оставить отзыв</button>
+      </form>
+    {% elif not user.is_authenticated %}
+      <p class="muted-note" style="margin-top:18px;">Чтобы оставить отзыв, <a href="{% url 'login' %}" style="color:var(--ember-2); text-decoration:underline;">войдите в аккаунт</a>.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

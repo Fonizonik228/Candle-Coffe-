@@ -1,0 +1,42 @@
+{% extends 'cafe/index.html' %}
+{% block title %}Регистрация — Candle Cafe{% endblock %}
+{% block content %}
+<section>
+  <div class="container">
+    <div class="auth-wrap">
+      <h1>Регистрация</h1>
+      <p class="sub">Это займёт меньше минуты</p>
+      {% if form.non_field_errors %}<div class="error-msg">{{ form.non_field_errors }}</div>{% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="field">
+          <label>Имя</label>
+          {{ form.name }}
+          {{ form.name.errors }}
+        </div>
+        <div class="field">
+          <label>Логин</label>
+          {{ form.username }}
+          {{ form.username.errors }}
+        </div>
+        <div class="field">
+          <label>Email</label>
+          {{ form.email }}
+          {{ form.email.errors }}
+        </div>
+        <div class="field">
+          <label>Телефон</label>
+          {{ form.phone }}
+        </div>
+        <div class="field">
+          <label>Пароль</label>
+          {{ form.password }}
+          {{ form.password.errors }}
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Создать аккаунт</button>
+      </form>
+      <div class="switch-line">Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

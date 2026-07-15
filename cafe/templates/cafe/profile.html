@@ -1,0 +1,43 @@
+{% extends 'cafe/index.html' %}
+{% block title %}Профиль — Candle Cafe{% endblock %}
+{% block content %}
+<section>
+  <div class="container">
+    <div class="profile-head">
+      <div class="avatar-wrap">
+        <div class="avatar">
+          {% if profile.avatar %}<img src="{{ profile.avatar.url }}" alt="">{% else %}{{ user.first_name|first|upper }}{% endif %}
+        </div>
+        <form method="post" enctype="multipart/form-data" id="avatarForm">
+          {% csrf_token %}
+          <label class="avatar-edit-btn" for="avatarInput" style="cursor:pointer;">✎</label>
+          <input type="file" name="avatar" id="avatarInput" accept="image/*" style="display:none;">
+        </form>
+      </div>
+      <div>
+        <h2 style="font-size:24px;">{{ user.first_name|default:user.username }}</h2>
+        <p class="muted-note" style="margin-top:2px;">@{{ user.username }}</p>
+      </div>
+    </div>
+
+    <div class="tabs-line">
+      <a href="{% url 'profile' %}" class="active">Мои данные</a>
+      <a href="{% url 'profile_orders' %}">Заказы</a>
+      <a href="{% url 'profile_bookings' %}">Брони</a>
+    </div>
+
+    <div class="panel" style="max-width:520px;">
+      <form method="post">
+        {% csrf_token %}
+        <div class="row-2">
+          <div class="field"><label>Имя</label>{{ form.name }}</div>
+          <div class="field"><label>Телефон</label>{{ form.phone }}</div>
+        </div>
+        <div class="field"><label>Email</label>{{ form.email }}</div>
+        <div class="field"><label>Адрес доставки</label>{{ form.address }}</div>
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

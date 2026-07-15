@@ -1,0 +1,30 @@
+{% extends 'cafe/index.html' %}
+{% block title %}Вход — Candle Cafe{% endblock %}
+{% block content %}
+<section>
+  <div class="container">
+    <div class="auth-wrap">
+      <h1>С возвращением</h1>
+      <p class="sub">Войдите, чтобы продолжить заказ</p>
+      {% if error %}<div class="error-msg">{{ error }}</div>{% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="field">
+          <label>Логин</label>
+          {{ form.username }}
+        </div>
+        <div class="field">
+          <label>Пароль</label>
+          {{ form.password }}
+        </div>
+        <div style="text-align:right; margin:-6px 0 16px;">
+          <a href="{% url 'password_reset' %}" style="font-size:12.5px; color:var(--ember-2); text-decoration:underline;">Забыли пароль?</a>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Войти</button>
+      </form>
+      <div class="switch-line">Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></div>
+      <p class="muted-note" style="text-align:center; margin-top:14px;">Демо-доступ администратора: <b>admin</b> / <b>admin123</b></p>
+    </div>
+  </div>
+</section>
+{% endblock %}

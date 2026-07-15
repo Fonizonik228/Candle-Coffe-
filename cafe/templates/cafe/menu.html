@@ -1,0 +1,58 @@
+{% extends 'cafe/index.html' %}
+{% block title %}Меню — Candle Cafe{% endblock %}
+{% block content %}
+<section>
+  <div class="container">
+    <div class="sec-head">
+      <div>
+        <h2>Меню</h2>
+        <p>Для кофе указан уровень обжарки — от лёгкой (○) до тёмной (●).</p>
+      </div>
+    </div>
+
+    <form method="get" class="menu-search" style="margin-bottom:18px;">
+      {% if active_category != 'Все' %}<input type="hidden" name="category" value="{{ active_category }}">{% endif %}
+      <input type="text" name="q" value="{{ query }}" placeholder="Поиск по меню…" class="menu-search-input">
+      {% if query %}<a href="?{% if active_category != 'Все' %}category={{ active_category }}{% endif %}" class="btn btn-ghost btn-sm">Сбросить</a>{% endif %}
+    </form>
+
+    <div class="cat-tabs">
+      {% for cat in categories %}
+        <a class="cat-tab {% if cat == active_category %}active{% endif %}" href="?category={{ cat }}{% if query %}&q={{ query }}{% endif %}">{{ cat }}</a>
+      {% endfor %}
+    </div>
+
+    <div class="menu-grid">
+      {% for product in products %}
+        <div class="ticket">
+          {% if product.images.all %}
+            <div class="ticket-media">
+              {% for img in product.images.all %}
+                <img src="{{ img.image.url }}" class="ticket-img {% if forloop.first %}active{% endif %}" alt="{{ product.name }}">
+              {% endfor %}
+            </div>
+          {% endif %}
+          <div class="ticket-name">{{ product.name }}</div>
+          {% if product.roast_level %}
+            <div class="roast">
+              {% for i in product.roast_range %}<span class="bean {% if i <= product.roast_level %}on{% endif %}"></span>{% endfor %}
+              <span style="margin-left:4px;">обжарка</span>
+            </div>
+          {% endif %}
+          <div class="ticket-desc">{{ product.description }}</div>
+          <div class="ticket-bottom">
+            <div class="price">{{ product.price }} ₽</div>
+            <form method="post" action="{% url 'cart_add' product.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button type="submit" class="add-btn">В заказ</button>
+            </form>
+          </div>
+        </div>
+      {% empty %}
+        <div class="empty-note">{% if query %}Ничего не найдено по запросу «{{ query }}».{% else %}В этой категории пока нет позиций.{% endif %}</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

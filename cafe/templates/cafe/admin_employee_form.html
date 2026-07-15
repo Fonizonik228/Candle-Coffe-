@@ -1,0 +1,28 @@
+{% extends 'cafe/admin_base.html' %}
+{% block title %}{% if employee %}Изменить сотрудника{% else %}Новый сотрудник{% endif %} — Админ{% endblock %}
+{% block content %}
+<div class="sec-head">
+  <div>
+    <h2>{% if employee %}Изменить сотрудника{% else %}Новый сотрудник{% endif %}</h2>
+    <p>Укажите ФИО, должность и процент, который сотрудник получает с продажи одного заказа.</p>
+  </div>
+  <a href="{% url 'admin_employees' %}" class="btn btn-ghost btn-sm">← К списку сотрудников</a>
+</div>
+<div class="panel" style="max-width:440px;">
+  <form method="post">
+    {% csrf_token %}
+    <div class="field"><label>ФИО</label>{{ form.full_name }}{{ form.full_name.errors }}</div>
+    <div class="field"><label>Должность</label>{{ form.position }}{{ form.position.errors }}</div>
+    <div class="field">
+      <label>Процент с продажи одного заказа, %</label>
+      {{ form.commission_percent }}
+      <div class="muted-note">{{ form.commission_percent.help_text }}</div>
+      {{ form.commission_percent.errors }}
+    </div>
+    <div style="display:flex; gap:10px;">
+      <button type="submit" class="btn btn-primary" style="flex:1;">Сохранить</button>
+      {% if employee %}<button type="submit" name="delete" value="1" class="btn btn-danger" onclick="return confirm('Удалить этого сотрудника?')">Удалить</button>{% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

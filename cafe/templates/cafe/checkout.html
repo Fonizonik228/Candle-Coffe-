@@ -1,0 +1,86 @@
+{% extends 'cafe/index.html' %}
+{% block title %}Оплата — Candle Cafe{% endblock %}
+{% block content %}
+<section>
+  <div class="container" style="max-width:480px;">
+    <div class="sec-head"><div><h2>Оплата заказа</h2><p>К оплате: <b style="color:var(--ember-2);">{{ total }} ₽</b></p></div></div>
+    <div class="panel">
+      <form method="post" id="checkoutForm">
+        {% csrf_token %}
+        <div class="field">
+          <label>Способ получения</label>
+          <div class="radio-group">
+            <label class="radio-pill {% if delivery_type == 'courier' %}on{% endif %}">
+              <input type="radio" name="delivery_type" value="courier" {% if delivery_type == 'courier' %}checked{% endif %} style="display:none;" onchange="toggleAddress(true)"> Доставка курьером
+            </label>
+            <label class="radio-pill {% if delivery_type == 'pickup' %}on{% endif %}">
+              <input type="radio" name="delivery_type" value="pickup" {% if delivery_type == 'pickup' %}checked{% endif %} style="display:none;" onchange="toggleAddress(false)"> Самовывоз
+            </label>
+          </div>
+        </div>
+        <div class="field" id="addressField" style="{% if delivery_type == 'pickup' %}display:none;{% endif %}">
+          <label>Адрес доставки</label>
+          <input type="text" name="address" value="{{ address }}" placeholder="Улица, дом, квартира">
+        </div>
+
+        <hr style="border:none; border-top:1px dashed var(--line); margin:18px 0;">
+
+        {% if use_saved %}
+          <input type="hidden" name="use_saved" value="1">
+          <div class="field">
+            <label>Сохранённая карта</label>
+            <div class="saved-card-box">
+              <span>{{ profile.card_display }}</span>
+              <span>{{ profile.card_exp_month }}/{{ profile.card_exp_year }}</span>
+            </div>
+          </div>
+          <div class="field" style="max-width:140px;">
+            <label>CVC</label>
+            {{ card_form.cvc }}
+            {{ card_form.cvc.errors }}
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;">Оплатить</button>
+        {% else %}
+          <div class="field">
+            <label>Номер карты</label>
+            {{ card_form.card_number }}
+            {{ card_form.card_number.errors }}
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Срок действия</label>
+              {{ card_form.expiry }}
+              {{ card_form.expiry.errors }}
+            </div>
+            <div class="field">
+              <label>CVC</label>
+              {{ card_form.cvc }}
+              {{ card_form.cvc.errors }}
+            </div>
+          </div>
+          <div class="field">
+            <label>Имя держателя карты</label>
+            {{ card_form.holder }}
+            {{ card_form.holder.errors }}
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;">Оплатить</button>
+          <div class="muted-note">После первой успешной оплаты карта (номер в маске, срок и имя) будет привязана к аккаунту. CVC мы никогда не сохраняем.</div>
+        {% endif %}
+      </form>
+      {% if use_saved %}
+        <form method="post" action="{% url 'use_other_card' %}" style="margin-top:10px;">
+          {% csrf_token %}
+          <button type="submit" class="switch-line" style="background:none; border:none; color:var(--ember-2); font-weight:700; text-decoration:underline; cursor:pointer;">Использовать другую карту</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</section>
+<script>
+  function toggleAddress(show){
+    document.getElementById('addressField').style.display = show ? 'block' : 'none';
+    document.querySelectorAll('.radio-pill').forEach(function(p){ p.classList.remove('on'); });
+    event.target.closest('.radio-pill').classList.add('on');
+  }
+</script>
+{% endblock %}

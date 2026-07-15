@@ -1,0 +1,32 @@
+{% extends 'cafe/index.html' %}
+{% block title %}Мои брони — Candle Cafe{% endblock %}
+{% block content %}
+<section>
+  <div class="container">
+    <div class="profile-head">
+      <div>
+        <h2 style="font-size:24px;">Мои брони</h2>
+      </div>
+    </div>
+    <div class="tabs-line">
+      <a href="{% url 'profile' %}">Мои данные</a>
+      <a href="{% url 'profile_orders' %}">Заказы</a>
+      <a href="{% url 'profile_bookings' %}" class="active">Брони</a>
+    </div>
+    <div class="panel">
+      {% for b in bookings %}
+        <div class="history-item">
+          <div class="history-top">
+            <span>BK-{{ b.id }} · оформлено {{ b.created_at|date:"d.m.Y H:i" }}</span>
+            <span class="status-pill status-confirmed">{{ b.get_status_display }}</span>
+          </div>
+          <div style="font-size:14px;">Столик {{ b.table }} · {{ b.date|date:"d.m.Y" }} в {{ b.time|time:"H:i" }} · {{ b.guests }} гостей</div>
+          <div style="font-size:13px; color:var(--cream-dim);">Тел: {{ b.phone }}{% if b.comment %} · {{ b.comment }}{% endif %}</div>
+        </div>
+      {% empty %}
+        <div class="empty-note">Броней пока нет.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

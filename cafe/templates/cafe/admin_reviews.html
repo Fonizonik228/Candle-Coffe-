@@ -1,0 +1,29 @@
+{% extends 'cafe/admin_base.html' %}
+{% block title %}Отзывы — Админ{% endblock %}
+{% block content %}
+<div class="sec-head">
+  <div>
+    <h2>Отзывы покупателей</h2>
+    <p>Всего отзывов: {{ reviews|length }}. Ответ появится на главной странице рядом с отзывом.</p>
+  </div>
+</div>
+<div class="panel">
+  {% for r in reviews %}
+    <div class="order-row" style="flex-direction:column; align-items:stretch;">
+      <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <div class="who">{{ r.user.first_name|default:r.user.username }} <span style="color:var(--gold); font-weight:400; margin-left:8px;">{{ r.stars }}</span></div>
+        <div class="meta">{{ r.created_at|date:"d.m.Y H:i" }}</div>
+      </div>
+      <div class="items-line" style="max-width:640px;">{{ r.text }}</div>
+      <form method="post" action="{% url 'admin_review_reply' r.id %}" style="margin-top:10px; display:flex; gap:8px; max-width:640px;">
+        {% csrf_token %}
+        <input type="text" name="reply" value="{{ r.admin_reply }}" placeholder="Ответ от кофейни…"
+               style="flex:1; background:rgba(var(--text-rgb),0.05); border:1px solid var(--line); border-radius:8px; padding:8px 10px; color:var(--cream);">
+        <button class="btn btn-primary btn-sm" type="submit">Ответить</button>
+      </form>
+    </div>
+  {% empty %}
+    <div class="empty-note">Отзывов пока нет.</div>
+  {% endfor %}
+</div>
+{% endblock %}

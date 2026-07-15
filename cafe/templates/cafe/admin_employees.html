@@ -1,0 +1,30 @@
+{% extends 'cafe/admin_base.html' %}
+{% block title %}Сотрудники — Админ{% endblock %}
+{% block content %}
+<div class="sec-head">
+  <div>
+    <h2>Сотрудники</h2>
+    <p>ФИО, должность, процент с продажи и сумма, заработанная от общей выручки кафе ({{ total_revenue|floatformat:0 }} ₽).</p>
+  </div>
+  <a href="{% url 'admin_employee_add' %}" class="btn btn-primary">+ Новый сотрудник</a>
+</div>
+<div class="panel">
+  {% for e in employees %}
+    <div class="order-row">
+      <div>
+        <div class="who">{{ e.full_name }}</div>
+        <div class="meta">{{ e.position }}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:18px;">
+        <div style="text-align:right;">
+          <div class="price">{{ e.earned|floatformat:0 }} ₽</div>
+          <div class="meta">{{ e.commission_percent }}% с продаж</div>
+        </div>
+        <a href="{% url 'admin_employee_edit' e.id %}" class="btn btn-ghost btn-sm">Изменить</a>
+      </div>
+    </div>
+  {% empty %}
+    <div class="empty-note">Сотрудников пока нет.</div>
+  {% endfor %}
+</div>
+{% endblock %}

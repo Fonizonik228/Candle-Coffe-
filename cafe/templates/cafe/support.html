@@ -1,0 +1,26 @@
+{% extends 'cafe/index.html' %}
+{% block title %}Поддержка — Candle Cafe{% endblock %}
+{% block content %}
+<section>
+  <div class="container" style="max-width:520px;">
+    <div class="sec-head"><div><h2>Поддержка кофейни</h2><p>Задайте вопрос — мы ответим прямо здесь.</p></div></div>
+    <div class="panel" style="padding:0; display:flex; flex-direction:column;">
+      <div class="chat-messages" style="max-height:none; min-height:280px;">
+        {% for m in thread %}
+          <div class="chat-bubble {{ m.sender }}">
+            {{ m.text }}
+            <span class="ctime">{{ m.created_at|date:"d.m.Y H:i" }}</span>
+          </div>
+        {% empty %}
+          <div class="empty-note">Пока нет сообщений — напишите нам, если есть вопросы!</div>
+        {% endfor %}
+      </div>
+      <form method="post" class="chat-input-row">
+        {% csrf_token %}
+        {{ form.text }}
+        <button type="submit" class="btn btn-primary btn-sm">Отправить</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

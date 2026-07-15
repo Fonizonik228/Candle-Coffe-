@@ -1,0 +1,63 @@
+{% extends 'cafe/index.html' %}
+{% block title %}Мои заказы — Candle Cafe{% endblock %}
+{% block content %}
+<section>
+  <div class="container">
+    <div class="profile-head">
+      <div>
+        <h2 style="font-size:24px;">Мои заказы</h2>
+      </div>
+    </div>
+    <div class="tabs-line">
+      <a href="{% url 'profile' %}">Мои данные</a>
+      <a href="{% url 'profile_orders' %}" class="active">Заказы</a>
+      <a href="{% url 'profile_bookings' %}">Брони</a>
+    </div>
+    <div class="panel">
+      {% for o in orders %}
+        <div class="history-item">
+          <div class="history-top">
+            <span>ORD-{{ o.id }} · {{ o.created_at|date:"d.m.Y H:i" }}</span>
+            <span class="status-pill {{ o.status_css }}" id="status-pill-{{ o.id }}">{{ o.get_status_display }}</span>
+          </div>
+          <div style="font-size:14px; margin-bottom:4px;">
+            {% for it in o.items.all %}{{ it.name }} ×{{ it.qty }}{% if not forloop.last %}, {% endif %}{% endfor %}
+          </div>
+          <div style="font-size:13px; color:var(--cream-dim);">
+            {% if o.delivery_type == 'courier' %}Доставка курьером · {{ o.address }}{% else %}Самовывоз{% endif %}
+            · <b style="color:var(--ember-2);">{{ o.total }} ₽</b>
+            {% if o.card_used %} · {{ o.card_used }}{% endif %}
+          </div>
+
+          {% if o.status == 'cancelled' %}
+            <div class="muted-note" style="color:#a3342b; margin-top:10px;">Заказ отменён.</div>
+          {% else %}
+            <!-- Стрелка-трекер скрыта по запросу, но оставлена в разметке (display:none),
+                 чтобы JS продолжал обновлять статус (плашку) в реальном времени. -->
+            <div class="order-tracker"
+                 style="display:none;"
+                 data-order-id="{{ o.id }}"
+                 data-active="{{ o.is_active_tracking|yesno:'1,0' }}"
+                 data-steps="{% for k,l in o.tracking_steps %}{{ k }}{% if not forloop.last %},{% endif %}{% endfor %}">
+              {% for key, label in o.tracking_steps %}
+                <div class="tracker-step {% if forloop.counter0 < o.tracking_index %}done{% elif forloop.counter0 == o.tracking_index %}current{% endif %}" data-step="{{ key }}">
+                  <div class="tracker-line"></div>
+                  <div class="tracker-dot"></div>
+                  <div class="tracker-label">{{ label }}</div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <form method="post" action="{% url 'repeat_order' o.id %}" style="margin-top:12px;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-ghost btn-sm">Повторить заказ</button>
+          </form>
+        </div>
+      {% empty %}
+        <div class="empty-note">Заказов пока нет — самое время попробовать наш раф.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

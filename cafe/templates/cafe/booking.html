@@ -1,0 +1,85 @@
+{% extends 'cafe/index.html' %}
+{% block title %}Бронирование — Candle Cafe{% endblock %}
+{% block content %}
+<section>
+  <div class="container">
+    <div class="sec-head">
+      <div>
+        <h2>Бронирование столика</h2>
+        <p>Выберите дату, время и свободный столик. Подтверждение появится в разделе «Профиль → Брони».</p>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="panel">
+        <form method="post" id="bookingForm">
+          {% csrf_token %}
+          {% if form.non_field_errors %}<div class="error-msg">{{ form.non_field_errors }}</div>{% endif %}
+          <div class="row-2">
+            <div class="field"><label>Дата</label>{{ form.date }}{{ form.date.errors }}</div>
+            <div class="field"><label>Время</label>{{ form.time }}{{ form.time.errors }}</div>
+          </div>
+          <div class="row-2">
+            <div class="field"><label>Количество гостей</label>{{ form.guests }}</div>
+            <div class="field"><label>Телефон для связи</label>{{ form.phone }}{{ form.phone.errors }}</div>
+          </div>
+          <label style="display:block; font-size:12.5px; color:var(--cream-dim); margin-bottom:6px; font-family:var(--font-mono);">Выберите столик</label>
+          <div class="table-picker">
+            {% for t in tables %}
+              <div class="table-opt" data-table="{{ t.id }}" onclick="selectTable('{{ t.id }}')">
+                <b>{{ t.id }}</b><span>{{ t.seats }} мест</span>
+              </div>
+            {% endfor %}
+          </div>
+          {{ form.table }}
+          {{ form.table.errors }}
+          <div class="field"><label>Комментарий (необязательно)</label>{{ form.comment }}</div>
+          <button type="submit" class="btn btn-primary" style="width:100%;">Забронировать</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:18px; margin-bottom:14px;">Как это работает</h3>
+        <div class="muted-note" style="font-size:13.5px;">
+          1. Выбираете свободный столик на карте зала.<br><br>
+          2. Указываете дату, время и число гостей.<br><br>
+          3. Бронь появляется в вашем профиле — её можно посмотреть в любой момент.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  function selectTable(id){
+    var opt = document.querySelector('[data-table="'+id+'"]');
+    if (opt.classList.contains('taken')) return;
+    document.querySelectorAll('.table-opt').forEach(function(el){ el.classList.remove('on'); });
+    opt.classList.add('on');
+    document.getElementById('id_table').value = id;
+  }
+
+  function refreshTableAvailability(){
+    var dateVal = document.getElementById('id_date').value;
+    var timeVal = document.getElementById('id_time').value;
+    if (!dateVal || !timeVal) return;
+    fetch('{% url "booked_tables_api" %}?date=' + encodeURIComponent(dateVal) + '&time=' + encodeURIComponent(timeVal))
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var booked = data.booked || [];
+        var currentTableInput = document.getElementById('id_table');
+        document.querySelectorAll('.table-opt').forEach(function(el){
+          var tableId = el.dataset.table;
+          if (booked.indexOf(tableId) !== -1) {
+            el.classList.add('taken');
+            el.classList.remove('on');
+            if (currentTableInput.value === tableId) currentTableInput.value = '';
+          } else {
+            el.classList.remove('taken');
+          }
+        });
+      });
+  }
+
+  document.getElementById('id_date').addEventListener('change', refreshTableAvailability);
+  document.getElementById('id_time').addEventListener('change', refreshTableAvailability);
+  refreshTableAvailability();
+</script>
+{% endblock %}

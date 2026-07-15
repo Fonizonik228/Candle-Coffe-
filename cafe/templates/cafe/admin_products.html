@@ -1,0 +1,41 @@
+{% extends 'cafe/admin_base.html' %}
+{% block title %}Товары — Админ{% endblock %}
+{% block content %}
+<div class="sec-head">
+  <div>
+    <h2>Товары меню</h2>
+    <p>Добавляйте, редактируйте и удаляйте позиции — изменения сразу увидят покупатели.</p>
+  </div>
+  <a href="{% url 'admin_product_add' %}" class="btn btn-primary">+ Новый товар</a>
+</div>
+<div class="menu-grid">
+  {% for product in products %}
+    <div class="ticket">
+      {% if product.images.all %}
+        <div class="ticket-media">
+          {% for img in product.images.all %}
+            <img src="{{ img.image.url }}" class="ticket-img {% if forloop.first %}active{% endif %}" alt="{{ product.name }}">
+          {% endfor %}
+        </div>
+      {% endif %}
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div class="ticket-name">{{ product.name }}</div>
+        <span style="font-family:var(--font-mono); font-size:11px; color:var(--cream-dim);">{{ product.category }}</span>
+      </div>
+      {% if product.roast_level %}
+        <div class="roast">
+          {% for i in product.roast_range %}<span class="bean {% if i <= product.roast_level %}on{% endif %}"></span>{% endfor %}
+          <span style="margin-left:4px;">обжарка</span>
+        </div>
+      {% endif %}
+      <div class="ticket-desc">{{ product.description }}</div>
+      <div class="ticket-bottom">
+        <div class="price">{{ product.price }} ₽</div>
+        <a href="{% url 'admin_product_edit' product.id %}" class="btn btn-ghost btn-sm">Изменить</a>
+      </div>
+    </div>
+  {% empty %}
+    <div class="empty-note">Товаров пока нет.</div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'cafe/index.html' %}
+{% block title %}Корзина — Candle Cafe{% endblock %}
+{% block content %}
+<section>
+  <div class="container" style="max-width:560px;">
+    <div class="sec-head"><div><h2>Ваш заказ</h2></div></div>
+    <div class="panel">
+      {% if items %}
+        {% for it in items %}
+          <div class="cart-item">
+            <div>
+              <div class="name">{{ it.product.name }}</div>
+              <div class="sub">{{ it.product.price }} ₽</div>
+            </div>
+            <form method="post" action="{% url 'cart_update' it.product.id %}" class="qty-ctrl">
+              {% csrf_token %}
+              <button type="submit" name="action" value="dec">−</button>
+              <span style="font-family:var(--font-mono); min-width:16px; text-align:center;">{{ it.qty }}</span>
+              <button type="submit" name="action" value="inc">+</button>
+            </form>
+          </div>
+        {% endfor %}
+        <div style="display:flex; justify-content:space-between; margin:16px 0; font-family:var(--font-mono); font-size:16px;">
+          <span>Итого</span><b>{{ total }} ₽</b>
+        </div>
+        <a href="{% url 'checkout' %}" class="btn btn-primary" style="width:100%; text-align:center;">Перейти к оплате</a>
+      {% else %}
+        <div class="empty-note">Корзина пуста.<br>Загляните в <a href="{% url 'menu' %}" style="color:var(--ember-2); text-decoration:underline;">меню</a> и добавьте что-нибудь вкусное.</div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

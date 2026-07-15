@@ -1,0 +1,35 @@
+{% extends 'cafe/admin_base.html' %}
+{% block title %}Заказы покупателей — Админ{% endblock %}
+{% block content %}
+<div class="sec-head">
+  <div>
+    <h2>Заказы покупателей</h2>
+    <p>Краткая сводка всех заказов всех покупателей и статус их выполнения.</p>
+  </div>
+</div>
+<div class="panel">
+  {% for o in orders %}
+    <div class="order-row">
+      <div>
+        <div class="who">@{{ o.user.username }} · ORD-{{ o.id }}</div>
+        <div class="meta">{{ o.created_at|date:"d.m.Y H:i" }}</div>
+        <div class="items-line">{% for it in o.items.all %}{{ it.name }} ×{{ it.qty }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
+        <div class="meta" style="margin-top:4px;">
+          {% if o.delivery_type == 'courier' %}Курьер · {{ o.address }}{% else %}Самовывоз{% endif %}
+          · <b style="color:var(--ember-2);">{{ o.total }} ₽</b>
+        </div>
+      </div>
+      <form method="post" action="{% url 'admin_order_status' o.id %}">
+        {% csrf_token %}
+        <select name="status" class="status-select {{ o.status_css }}" onchange="this.form.submit()">
+          {% for value, label in statuses %}
+            <option value="{{ value }}" {% if value == o.status %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+  {% empty %}
+    <div class="empty-note">Заказов пока нет.</div>
+  {% endfor %}
+</div>
+{% endblock %}

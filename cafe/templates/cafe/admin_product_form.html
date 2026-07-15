@@ -1,0 +1,56 @@
+{% extends 'cafe/admin_base.html' %}
+{% block title %}{% if product %}Изменить товар{% else %}Новый товар{% endif %} — Админ{% endblock %}
+{% block content %}
+<div class="sec-head">
+  <div>
+    <h2>{% if product %}Изменить товар{% else %}Новый товар{% endif %}</h2>
+    <p>Заполните карточку позиции меню.</p>
+  </div>
+  <a href="{% url 'admin_products' %}" class="btn btn-ghost btn-sm">← К списку товаров</a>
+</div>
+<div class="panel" style="max-width:440px;">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="field"><label>Название</label>{{ form.name }}{{ form.name.errors }}</div>
+    <div class="row-2">
+      <div class="field"><label>Категория</label>{{ form.category }}{{ form.category.errors }}</div>
+      <div class="field"><label>Цена, ₽</label>{{ form.price }}{{ form.price.errors }}</div>
+    </div>
+    <datalist id="catList">
+      {% for c in categories %}<option value="{{ c }}">{% endfor %}
+    </datalist>
+    <div class="field"><label>Описание</label>{{ form.description }}</div>
+    <div class="field"><label>Уровень обжарки (только для кофе, 0 — не показывать)</label>{{ form.roast_level }}</div>
+
+    {% if product and product.images.all %}
+      <div class="field">
+        <label>Текущие фото (на сайте перелистываются автоматически)</label>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          {% for img in product.images.all %}
+            <div style="position:relative; width:76px;">
+              <img src="{{ img.image.url }}" style="width:76px; height:76px; object-fit:cover; border-radius:8px; border:1px solid var(--line);">
+              <label style="display:flex; align-items:center; gap:4px; font-size:11px; color:var(--cream-dim); margin-top:4px;">
+                <input type="checkbox" name="delete_image" value="{{ img.id }}"> удалить
+              </label>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="field">
+      <label>Добавить фотографии (можно выбрать сразу несколько)</label>
+      {{ form.images }}
+      {{ form.images.errors }}
+    </div>
+
+    <div style="display:flex; gap:10px;">
+      <button type="submit" class="btn btn-primary" style="flex:1;">Сохранить</button>
+      {% if product %}<button type="submit" name="delete" value="1" class="btn btn-danger" onclick="return confirm('Удалить этот товар?')">Удалить</button>{% endif %}
+    </div>
+  </form>
+</div>
+<script>
+  document.querySelector('input[name="category"]').setAttribute('list', 'catList');
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'cafe/admin_base.html' %}
+{% block title %}Поддержка — Админ{% endblock %}
+{% block content %}
+<div class="sec-head">
+  <div>
+    <h2>Обращения покупателей</h2>
+    <p>Отвечайте покупателям прямо здесь — новые вопросы подсвечиваются во вкладке.</p>
+  </div>
+</div>
+<div class="two-col">
+  <div class="panel" style="padding:0; overflow:hidden;">
+    {% for c in conversations %}
+      <a href="{% url 'admin_support_thread' c.user.username %}" class="conv-row {% if active_customer and active_customer.username == c.user.username %}active{% endif %}">
+        <div>
+          <div class="cname">@{{ c.user.username }}</div>
+          <div class="cpreview">{% if c.last.sender == 'admin' %}Вы: {% endif %}{{ c.last.text }}</div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+          <span class="ctime2">{{ c.last.created_at|date:"H:i" }}</span>
+          {% if c.unread %}<span class="conv-dot"></span>{% endif %}
+        </div>
+      </a>
+    {% empty %}
+      <div class="empty-note">Обращений пока нет.</div>
+    {% endfor %}
+  </div>
+
+  <div class="panel" style="display:flex; flex-direction:column; min-height:420px;">
+    {% if active_customer %}
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div style="font-weight:700;">Диалог с @{{ active_customer.username }}</div>
+        <a href="{% url 'admin_support' %}" class="icon-link" style="width:30px; height:30px;" title="Закрыть чат">✕</a>
+      </div>
+      <div class="chat-messages" style="flex:1; border:1px solid var(--line); border-radius:10px; margin-bottom:12px;">
+        {% for m in thread %}
+          <div class="chat-bubble {{ m.sender }}">
+            {{ m.text }}
+            <span class="ctime">{{ m.created_at|date:"d.m.Y H:i" }}</span>
+          </div>
+        {% empty %}
+          <div class="empty-note">Сообщений пока нет.</div>
+        {% endfor %}
+      </div>
+      <form method="post" class="chat-input-row" style="padding:0; border-top:none;">
+        {% csrf_token %}
+        <input type="text" name="text" placeholder="Ваш ответ…" autocomplete="off">
+        <button type="submit" class="btn btn-primary btn-sm">Ответить</button>
+      </form>
+    {% else %}
+      <div class="empty-note">Выберите диалог слева</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

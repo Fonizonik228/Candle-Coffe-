@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Candle Cafe{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'cafe/css/style.css' %}">
+</head>
+<body>
+
+<header class="topnav">
+  <div class="nav-inner">
+    <a href="{% url 'home' %}" class="brand"><span class="mark"></span> Candle Cafe</a>
+    <nav class="links">
+      <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Главная</a>
+      <a href="{% url 'menu' %}" class="{% if request.resolver_match.url_name == 'menu' %}active{% endif %}">Меню</a>
+      <a href="{% url 'booking' %}" class="{% if request.resolver_match.url_name == 'booking' %}active{% endif %}">Бронирование</a>
+      {% if user.is_authenticated %}<a href="{% url 'profile' %}" class="{% if 'profile' in request.resolver_match.url_name %}active{% endif %}">Профиль</a>{% endif %}
+    </nav>
+    <div class="nav-right">
+      <a class="icon-link" href="{% url 'cart' %}" title="Корзина">🛒{% if cart_count %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
+      {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="post" style="display:inline;">{% csrf_token %}
+          <button type="submit" class="btn btn-ghost btn-sm">Выйти</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn btn-ghost btn-sm">Войти</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<div class="container" style="padding-top:20px;">
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+</div>
+
+{% block content %}{% endblock %}
+
+<footer>
+  <div class="container footer-inner">
+    <div>© Candle Cafe · демо-версия на Django</div>
+    <div>Пн–Вс 08:00–22:00 · ул. Пример, 12</div>
+  </div>
+</footer>
+
+{% if user.is_authenticated and not user.is_staff %}
+<a class="chat-fab" href="{% url 'support' %}" title="Задать вопрос">💬{% if unread_chat %}<span class="badge" id="liveBadge">{{ unread_chat }}</span>{% else %}<span class="badge" id="liveBadge" style="display:none;">0</span>{% endif %}</a>
+{% endif %}
+
+<script src="{% static 'cafe/js/app.js' %}"></script>
+</body>
+</html>
